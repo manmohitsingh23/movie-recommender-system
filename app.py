@@ -2,6 +2,7 @@ import pickle
 import streamlit as st
 import requests
 import pandas as pd
+import gdown
 
 def fetch_poster(movie_id):
     # Function to fetch movie posters
@@ -26,23 +27,22 @@ def recommend(movie):
 
     return recommended_movie_names, recommended_movie_posters
 
-
+# Header for the app
 st.header('Movie Recommender System')
 
 # Load movie data from pickle file
 movies_dict = pickle.load(open('./movie_dict.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
 
-# Download the similarity.pkl file from Google Drive
+# Download the similarity.pkl file from Google Drive using gdown
 url = "https://drive.google.com/uc?id=1aAMB06nAttccKRRaAGTHK76uKLzSiCPz"  # Replace with your actual Google Drive link
-r = requests.get(url)
-
-# Save the downloaded file locally
-with open("similarity.pkl", 'wb') as f:
-    f.write(r.content)
+gdown.download(url, "similarity.pkl", quiet=False)
 
 # Load the similarity matrix from the downloaded file
-similarity = pickle.load(open('similarity.pkl', 'rb'))
+try:
+    similarity = pickle.load(open('similarity.pkl', 'rb'))
+except Exception as e:
+    st.write(f"Error loading similarity file: {e}")
 
 # Dropdown for movie selection
 movie_list = movies['title'].values
